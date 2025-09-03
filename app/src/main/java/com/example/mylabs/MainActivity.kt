@@ -17,7 +17,6 @@ import com.example.mylabs.ui.theme.MyLabsTheme
 var firstName : String = "Daniel"
 var lastName : String = "Bierman"
 
-//Wasn't sure if I had to default them to the vars as well, but did so anyways
 fun printName() : String{
     return "Your first name is: $firstName and your last name is: $lastName."
 }
