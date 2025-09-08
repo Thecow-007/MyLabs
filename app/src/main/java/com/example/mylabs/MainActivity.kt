@@ -14,15 +14,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.mylabs.ui.theme.MyLabsTheme
 
-var firstName : String = "Daniel"
-var lastName : String = "Bierman"
 
-fun printName() : String{
-    return "Your first name is: $firstName and your last name is: $lastName."
-}
 
 
 class MainActivity : ComponentActivity() {
+
+    var firstName : String = "Daniel"
+    var lastName : String = "Bierman"
+
+    fun printName() : String{
+        return "your first name is: $firstName and your last name is: $lastName"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,7 +34,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     containerColor = Color.Yellow) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = printName(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -41,7 +44,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name:String = printName(), modifier: Modifier = Modifier) {
+fun Greeting(name:String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
         modifier = modifier
