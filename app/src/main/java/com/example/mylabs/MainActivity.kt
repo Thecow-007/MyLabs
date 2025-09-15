@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
         return "your first name is: $firstName and your last name is: $lastName"
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
