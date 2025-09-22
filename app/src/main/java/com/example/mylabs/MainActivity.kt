@@ -1,6 +1,8 @@
 package com.example.mylabs
 
 import android.os.Bundle
+import android.util.Log
+import android.view.ActionMode
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.mylabs.ui.theme.MyLabsTheme
 
@@ -28,6 +31,7 @@ class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.w( "MainActivity", "In onCreate() - Loading Widgets" );
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -42,12 +46,37 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        Log.w( "MainActivity", "In onStart() - The activity is now visible on screen" );
+        super.onStart()
+    }
+
+    override fun onResume(){
+        Log.w( "MainActivity", "In onResume() - The activity is now responding to user input" );
+        super.onResume();
+    }
+
+    override fun onPause(){
+        Log.w( "MainActivity", "In onPause()- The activity no longer responds to user input" );
+        super.onPause();
+    }
+
+    override fun onStop(){
+        Log.w( "MainActivity", "In onStop() - The activity is no longer visible" );
+        super.onStop();
+    }
+
+    override fun onDestroy(){
+        Log.w( "MainActivity", "In onDestroy() - Any memory used by the application is freed" );
+        super.onDestroy();
+    }
 }
 
 @Composable
 fun Greeting(name:String, modifier: Modifier = Modifier) {
     Text(
-        text = "Hello $name!",
+        text = stringResource(R.string.hello_message),
         modifier = modifier
     )
 }
@@ -59,69 +88,5 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
-
-// Following along with Week 1:
-//Type inferred:
-var i = 0
-var j = "String"
-
-//Strongly typed:
-var l : Int = 0
-var m : String = "Strong String"
-
-//Constants - use 'val'
-val s = "Weak Constant String"
-val s2 : String = "Strong constant string"
-
-//Functions:
-
-fun aFunction() : String {
-    return "a String"
-}
-
-//For no return type: (Unit is like void from java)
-fun bFunction() : Unit {
-
-}
-
-//Parameters:
-fun cFunction (param1:String, param2:Int, param3:Double) : Unit {
-
-}
-//Default Values
-fun printStrings(param1:String = "Hello", param2:String = "World"){
-    var result = "String 1: $param1, String 2: $param2"
-}
-
-//You can then use the function like: (inside example function to avoid syntax error)
-fun exampleFunction(){
-    printStrings(param1="New", param2="World")
-    //if you don't assign vars they will go to default:
-    printStrings(param2="help");
-}
-
-//Now functions can take in other functions:
-
-fun takeOtherFunction(aCoolFunction : (String) -> Unit){
-    var aString = "This is a String"
-    aCoolFunction(aString) //running the function with aString
-}
-
-//The syntax for a function type is ( Parameter types) -> Return type
-
-// You can then call with other functions like so:
-
-fun example2Function(){
-    takeOtherFunction(::printStrings)
-    //Creating a lamdba function and passing it to takeOtherFunction right away
-    takeOtherFunction {str1:String -> var len = str1.length }
-}
-
-// Google Gemini Explanation of the :: operator
-// "The :: operator allows you to treat a function or a property as an object,
-// which can then be passed around, stored, or invoked dynamically. function reference."
-
-//To my understanding it just lets us pass in the function reference instead of trying to call the function.
-
 
 
