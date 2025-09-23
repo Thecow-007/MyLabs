@@ -1,7 +1,10 @@
 package com.example.mylabs
 
-import android.content.Context
 import android.content.Context.SENSOR_SERVICE
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
 import android.view.ActionMode
@@ -14,11 +17,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.mylabs.ui.theme.MyLabsTheme
 
 
@@ -42,8 +50,7 @@ class MainActivity : ComponentActivity() {
             MyLabsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.primary) { innerPadding ->
-                    Greeting(
-                        name = printName(),
+                    DisplayLighting(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -79,16 +86,27 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DisplayLighting(modifier: Modifier = Modifier) {
+    var value = remember { mutableStateOf(0.0f) }
     var sensorManager = LocalContext.current.getSystemService(SENSOR_SERVICE) as SensorManager
-
-
     var lightingSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
 
-    var value = 0.0
+    val sensorListener = object: SensorEventListener {
+        override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+//            Leave Blank
+        }
 
+        override fun onSensorChanged(event: SensorEvent?) {
+            value.value = event!!.values[0];
+        }
+
+    }
+
+    sensorManager.registerListener(sensorListener, lightingSensor, SensorManager.SENSOR_DELAY_NORMAL)
     Text(
-        text = "The lighting is $value",
-        modifier = modifier
+        text = "The lighting is ${value.value}",
+        modifier = modifier,
+        fontSize = 40.sp,
+        fontStyle = FontStyle.Bold
     )
 }
 
