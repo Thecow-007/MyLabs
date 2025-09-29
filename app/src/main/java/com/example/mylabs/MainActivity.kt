@@ -15,9 +15,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +34,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.example.mylabs.ui.theme.MyLabsTheme
 
 
@@ -54,7 +59,7 @@ class MainActivity : ComponentActivity() {
             MyLabsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.primary) { innerPadding ->
-                    DisplayLighting(
+                    DisplayText(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -89,34 +94,82 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun DisplayLighting(modifier: Modifier = Modifier) {
-    var value = remember { mutableStateOf(0.0f) }
-    var sensorManager = LocalContext.current.getSystemService(SENSOR_SERVICE) as SensorManager
-    var lightingSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
+fun DisplayText(modifier: Modifier = Modifier) {
 
-    val sensorListener = object: SensorEventListener {
-        override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-//            Leave Blank
+    val context = LocalContext.current
+    val mainKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+
+    val SHARED_PREFS_KEY = "VariableName"
+
+    var isShowingDialog = remember {mutableStateOf(true)}
+
+    var currentValue = remember {mutableStateOf("Hello World")}
+
+    var agreeCollectData = remember{mutableStateOf(false) }
+
+    val sharedPreferences = EncryptedSharedPreferences.create(
+        "MyFileName" ,
+        mainKey,
+        context,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    var storedValue = remember {mutableStateOf(sharedPreferences.getString(SHARED_PREFS_KEY, "Default")) }
+
+    fun textBoxValueChanged(newValue: String){
+        run {
+            currentValue.value = newValue
+            if (agreeCollectData.value) {
+                with(sharedPreferences.edit())
+                {
+                    putString(SHARED_PREFS_KEY, newValue)
+                    apply()
+                }
+            }
         }
-
-        override fun onSensorChanged(event: SensorEvent?) {
-            value.value = event!!.values[0];
-        }
-
     }
 
-    sensorManager.registerListener(sensorListener, lightingSensor, SensorManager.SENSOR_DELAY_NORMAL)
+    Column {
+        if(agreeCollectData.value){
+            Text(text= "Good news! You let us know where you live!!! :)", modifier = modifier)
+        }
+        else{
+            Text(text= "Hey don't you think its weird that you know where we are but we don't know where you live?? Enter your address.... Please??? ", modifier = modifier)
+        }
 
-    Column{
-        Image( painter = painterResource( R.drawable.lightbulb ), contentDescription="An image of a lightbulb" )
-        Text(
-            text = "The lighting is ${value.value}",
-            modifier = modifier,
-            fontSize = 40.sp,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold
+        TextField(
+            value=currentValue.value,
+            onValueChange = {nv -> textBoxValueChanged(nv)}
         )
+
+        Text(text= "Stored Value: ${storedValue.value}", modifier = modifier)
+
     }
+
+
+
+
+    fun confirmClicked(){
+        agreeCollectData.value = true
+        isShowingDialog.value = false
+    }
+
+    fun dismissClicked(){
+        agreeCollectData.value = false
+        isShowingDialog.value = false
+    }
+
+    if(isShowingDialog.value)
+        AlertDialog(
+            onDismissRequest = {isShowingDialog.value = false},
+            title = { Text(text = "Save Address Data?") },
+            text = { Text("We use your address so that we can plan where to place our next store. This data is optional and not required for our service. ") },       //This below causes a recomposition
+            confirmButton = {  Button( onClick = ::confirmClicked) { Text("I consent to my address being shared.")   }  },
+            dismissButton = {  Button( onClick = ::dismissClicked) {Text("I do not consent to my address being shared.")    }  }
+        )
+
+
 
 
 }
@@ -125,7 +178,7 @@ fun DisplayLighting(modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     MyLabsTheme {
-        DisplayLighting()
+        DisplayText()
     }
 }
 
