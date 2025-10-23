@@ -1,7 +1,6 @@
 package com.example.mylabs
 
 import android.content.Context.SENSOR_SERVICE
-import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -40,12 +39,11 @@ import androidx.compose.ui.unit.sp
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.mylabs.ui.theme.MyLabsTheme
-import androidx.activity.compose.LocalActivity
 
 
 
 
-class MainActivity : ComponentActivity() {
+class SecondActivity : ComponentActivity() {
 
     var firstName : String = "Daniel"
     var lastName : String = "Bierman"
@@ -98,21 +96,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(modifier: Modifier = Modifier) {
+fun SecondPageContent(modifier: Modifier = Modifier) {
     var text = remember { mutableStateOf("")}
-    val context = LocalActivity.current
-    val nextPage = Intent(context, SecondActivity::class.java)
 
+    val context = LocalAcivity.current
 
     Column(modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally ) {
 
+
+
+        Text("Page 2")
+
         Button(onClick = {
-            context?.startActivity(  nextPage )
+            context?.finish()
         }){
-            Text("Click me!!")
+            Text("Go back")
         }
+    }
     }
 }
 
@@ -200,9 +202,9 @@ fun Greeting(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun SecondPagePreview() {
     MyLabsTheme {
-        Greeting()
+        SecondPageContent()
     }
 }
 
