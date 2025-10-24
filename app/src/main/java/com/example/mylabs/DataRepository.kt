@@ -1,8 +1,8 @@
 package com.example.mylabs
 
-data class MyRepository(var name:String = "", var age:Int = 0){
+data class DataRepository(var name:String = "", var age:Int = 0){
     companion object {
-        var theInstance = MyRepository()
-        fun getInstance() :MyRepository { return theInstance }
+        var theInstance = DataRepository()
+        fun getInstance() :DataRepository { return theInstance }
     }
 }
