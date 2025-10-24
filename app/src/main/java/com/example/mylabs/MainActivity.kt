@@ -1,6 +1,9 @@
 package com.example.mylabs
 
+import android.app.Activity
+import android.content.Context
 import android.content.Context.SENSOR_SERVICE
+import android.content.ContextWrapper
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -40,10 +43,14 @@ import androidx.compose.ui.unit.sp
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.mylabs.ui.theme.MyLabsTheme
-import androidx.activity.compose.LocalActivity
+//import androidx.activity.compose.LocalActivity //Unresolved reference 'LocalActivity'
 
-
-
+data class MyRepository(var name:String = "", var age:Int = 0){
+    companion object {
+        var theInstance = MyRepository()
+        fun getInstance() :MyRepository { return theInstance }
+    }
+}
 
 class MainActivity : ComponentActivity() {
 
@@ -100,7 +107,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(modifier: Modifier = Modifier) {
     var text = remember { mutableStateOf("")}
-    val context = LocalActivity.current
+    val context = LocalContext.current
+//    val context2 = LocalActivity.current
     val nextPage = Intent(context, SecondActivity::class.java)
 
 
@@ -109,11 +117,20 @@ fun Greeting(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally ) {
 
         Button(onClick = {
-            context?.startActivity(  nextPage )
+            context.startActivity(  nextPage )
         }){
             Text("Click me!!")
         }
     }
+}
+
+fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
 }
 
 

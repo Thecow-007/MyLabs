@@ -61,7 +61,7 @@ class SecondActivity : ComponentActivity() {
             MyLabsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.primary) { innerPadding ->
-                    Greeting(
+                    SecondPageContent(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -99,7 +99,8 @@ class SecondActivity : ComponentActivity() {
 fun SecondPageContent(modifier: Modifier = Modifier) {
     var text = remember { mutableStateOf("")}
 
-    val context = LocalAcivity.current
+    val context = LocalContext.current
+    val activity = context.findActivity()
 
     Column(modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -110,11 +111,10 @@ fun SecondPageContent(modifier: Modifier = Modifier) {
         Text("Page 2")
 
         Button(onClick = {
-            context?.finish()
+            activity?.finish()
         }){
             Text("Go back")
         }
-    }
     }
 }
 
