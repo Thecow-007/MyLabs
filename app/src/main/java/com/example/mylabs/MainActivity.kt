@@ -18,7 +18,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -39,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
@@ -64,7 +67,7 @@ class MainActivity : ComponentActivity() {
             MyLabsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.primary) { innerPadding ->
-                    Greeting(
+                    LoginPage(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -99,21 +102,52 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(modifier: Modifier = Modifier) {
-    var text = remember { mutableStateOf("")}
+fun LoginPage(modifier: Modifier = Modifier) {
+    var username = remember { mutableStateOf("")}
+    var password = remember { mutableStateOf("")}
 //    Had to use LocalContext to get it to work
     val context = LocalContext.current
     val nextPage = Intent(context, SecondActivity::class.java)
 
+    val dr = DataRepository.getInstance()
 
-    Column(modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally ) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+        modifier = Modifier.padding(24.dp).fillMaxHeight().fillMaxWidth()
+    )
+    {
+//        Username
+        TextField(
+            label={
+                Text("Username:")
+            },
+            value = username.value,
+            placeholder = {Text("username...")},
+            onValueChange = {
+                newValue:String ->
+                dr.username = newValue
+                username.value = newValue
+            }
+        )
+//        Password
+        TextField(
+            label={
+                Text("Password:")
+            },
+            value = password.value,
+            placeholder = {Text("password...")},
+            onValueChange = {
+                    newValue:String ->
+                dr.password = newValue
+                password.value = newValue
+            }
+        )
 
         Button(onClick = {
             context.startActivity(  nextPage )
         }){
-            Text("Click me!!")
+            Text("Login")
         }
     }
 }
@@ -132,7 +166,7 @@ fun Context.findActivity(): Activity? {
 @Composable
 fun GreetingPreview() {
     MyLabsTheme {
-        Greeting()
+        LoginPage()
     }
 }
 
