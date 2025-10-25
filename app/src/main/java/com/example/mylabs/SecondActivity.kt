@@ -61,6 +61,28 @@ class SecondActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.w( "MainActivity", "In onCreate() - Loading Widgets" );
         super.onCreate(savedInstanceState)
+
+        val data: Uri? = intent.data
+        val dr = DataRepository.getInstance()
+
+        // Check if launched by the "profile" deep link
+        if (data != null && data.scheme == "cst8410" && data.host == "profile") {
+            val phone = data.getQueryParameter("phone")
+            val email = data.getQueryParameter("email")
+            val address = data.getQueryParameter("address")
+
+            // Save any non-null values to repository
+            if (phone != null) {
+                dr.phone = phone
+            }
+            if (email != null) {
+                dr.email = email
+            }
+            if (address != null) {
+                dr.address = address
+            }
+        }
+
         enableEdgeToEdge()
         setContent {
             MyLabsTheme {
@@ -104,9 +126,9 @@ class SecondActivity : ComponentActivity() {
 fun SecondPageContent(modifier: Modifier = Modifier) {
     val dr = DataRepository.getInstance()
 
-    var phone = remember { mutableStateOf("")}
-    var email = remember { mutableStateOf("")}
-    var address = remember { mutableStateOf("")}
+    var phone = remember { mutableStateOf(dr.phone)}
+    var email = remember { mutableStateOf(dr.email)}
+    var address = remember { mutableStateOf(dr.address)}
 
 
     val context = LocalContext.current
@@ -208,6 +230,18 @@ fun SecondPageContent(modifier: Modifier = Modifier) {
             activity?.finish()
         }){
             Text("Go back")
+        }
+
+        Button(
+            onClick = {
+                val loginIntent = Intent(Intent.ACTION_VIEW).apply {
+                    //uses the cst8410 protocol + attributes
+                    data = ("cst8410://profile/?phone=1234&email=torunse@algonquincollege.com&address=1385+Woodroffe+Avenue").toUri()
+                }
+                context.startActivity(loginIntent)
+            }
+        ) {
+            Text("Prepopulate Page 2")
         }
     }
 }

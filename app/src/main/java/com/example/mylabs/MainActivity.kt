@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.mylabs.ui.theme.MyLabsTheme
@@ -148,6 +149,17 @@ fun LoginPage(modifier: Modifier = Modifier) {
             context.startActivity(  nextPage )
         }){
             Text("Login")
+        }
+        Button(
+            onClick = {
+                val loginIntent = Intent(Intent.ACTION_VIEW).apply {
+                    //uses the cst8410 protocol + attributes
+                    data = ("cst8410://profile/?phone=1234&email=torunse@algonquincollege.com&address=1385+Woodroffe+Avenue").toUri()
+                }
+                context.startActivity(loginIntent)
+            }
+        ) {
+            Text("Prepopulate Page 2")
         }
     }
 }
