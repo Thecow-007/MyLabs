@@ -49,6 +49,10 @@ import androidx.security.crypto.MasterKeys
 import com.example.mylabs.ui.theme.MyLabsTheme
 //import androidx.activity.compose.LocalActivity //Unresolved reference 'LocalActivity'
 
+//Shell commands:
+// cd C:\Users\bierm\AppData\Local\Android\Sdk\platform-tools
+// .\adb shell am start -W -a android.intent.action.VIEW -d "cst8410://login" com.example.mylabs
+// .\adb shell am start -W -a android.intent.action.VIEW -d "cst8410://profile" com.example.mylabs
 
 class MainActivity : ComponentActivity() {
 
