@@ -48,6 +48,11 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.mylabs.ui.theme.MyLabsTheme
 //import androidx.activity.compose.LocalActivity //Unresolved reference 'LocalActivity'
+import io.ktor.client.*
+import io.ktor.client.engine.android.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+
 
 //Shell commands:
 // cd C:\Users\bierm\AppData\Local\Android\Sdk\platform-tools
@@ -104,6 +109,19 @@ class MainActivity : ComponentActivity() {
         Log.w( "MainActivity", "In onDestroy() - Any memory used by the application is freed" );
         super.onDestroy();
     }
+
+    val client = HttpClient(Android){
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+
+    val response: HttpResponse = client.post("https://localhost:8080/firstTest")
+    {
+        contentType(ContentType.Application.Json)
+        setBody(LoginRequest("Jet", "Brains"))
+    }
+    println(response.status)
 }
 
 @Composable
