@@ -18,12 +18,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import coil3.compose.AsyncImage
 import com.example.mylabs.ui.theme.MyLabsTheme
 //import androidx.activity.compose.LocalActivity //Unresolved reference 'LocalActivity'
 import io.ktor.client.*
@@ -61,6 +64,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
 
 
 //Shell commands:
@@ -132,8 +136,10 @@ fun LoginPage(modifier: Modifier = Modifier) {
         }
     }
 
-    var username = remember { mutableStateOf("")}
-    var password = remember { mutableStateOf("")}
+    var input1 = remember { mutableStateOf("")}
+    var input2 = remember { mutableStateOf("")}
+
+    var result = remember { mutableStateOf("")}
 //    Had to use LocalContext to get it to work
     val context = LocalContext.current
     val nextPage = Intent(context, SecondActivity::class.java)
@@ -143,54 +149,155 @@ fun LoginPage(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-        modifier = Modifier.padding(24.dp).fillMaxHeight().fillMaxWidth()
+        modifier = Modifier.padding(24.dp, 0.dp, 24.dp, 200.dp).fillMaxHeight().fillMaxWidth()
     )
     {
-//        Username
-        TextField(
-            label={
-                Text("Username:")
-            },
-            value = username.value,
-            placeholder = {Text("username...")},
-            onValueChange = {
-                newValue:String ->
-                dr.username = newValue
-                username.value = newValue
-            }
-        )
-//        Password
-        TextField(
-            label={
-                Text("Password:")
-            },
-            value = password.value,
-            placeholder = {Text("password...")},
-            onValueChange = {
-                    newValue:String ->
-                dr.password = newValue
-                password.value = newValue
-            }
-        )
-
-        Button(onClick = {
-
-            CoroutineScope(Dispatchers.IO).launch {
-                val response: HttpResponse = client.post("http://10.0.2.2:8080/firstTest")
-                {
-                    contentType(ContentType.Application.Json)
-                    val login = LoginRequest("Jet", "Brains")
-                    setBody(login)
+        Row {
+            Text("Super Duper Calculator!")
+        }
+        Row {
+            Text("Result : " + result.value)
+        }
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ){
+            //input 1
+            TextField(
+                modifier = Modifier.weight(1f),
+                label = {Text("input 1:")},
+                value = input1.value,
+                placeholder = {Text("type a number...")},
+                onValueChange = {
+                        newValue:String ->
+                    input1.value = newValue
                 }
-                val body =  response.body<LoginRequest>()
-                Log.d("MyLogin", "Response Status: ${response.status}")
-                Log.d("MyLogin", "User logged in as: ${body.loginName}")
+            )
+            //input 2
+            TextField(
+                modifier = Modifier.weight(1f),
+                label = {Text("input 2:")},
+                value = input2.value,
+                placeholder = {Text("type a number...")},
+                onValueChange = {
+                        newValue:String ->
+                    input2.value = newValue
+                }
+            )
+        }
+
+        Row (
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ){
+//            Add Button
+            Button(
+                onClick = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response: HttpResponse = client.post("http://10.0.2.2:8080/add")
+                    {
+                        contentType(ContentType.Application.Json)
+                        val input = CalcInput(input1.value, input2.value)
+                        setBody(input)
+                    }
+                    val body =  response.body<CalcResult>()
+                    result.value = body.result
+                }
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray,
+                )
+
+            ){
+                Text("+")
             }
 
+//            Subtract Button
+            Button(onClick = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response: HttpResponse = client.post("http://10.0.2.2:8080/subtract")
+                    {
+                        contentType(ContentType.Application.Json)
+                        val input = CalcInput(input1.value, input2.value)
+                        setBody(input)
+                    }
+                    val body =  response.body<CalcResult>()
+                    result.value = body.result
+                }
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray,
+                )
+            ){
+                Text("-")
+            }
 
-//            context.startActivity(  nextPage )
-        }){
-            Text("Login")
+//            Multiply Button
+            Button(onClick = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response: HttpResponse = client.post("http://10.0.2.2:8080/multiply")
+                    {
+                        contentType(ContentType.Application.Json)
+                        val input = CalcInput(input1.value, input2.value)
+                        setBody(input)
+                    }
+                    val body =  response.body<CalcResult>()
+                    result.value = body.result
+                }
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray,
+                )
+            ){
+                Text("x")
+            }
+
+//            Divide Button
+            Button(onClick = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response: HttpResponse = client.post("http://10.0.2.2:8080/divide")
+                    {
+                        contentType(ContentType.Application.Json)
+                        val input = CalcInput(input1.value, input2.value)
+                        setBody(input)
+                    }
+                    val body =  response.body<CalcResult>()
+                    result.value = body.result
+                }
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray,
+                )
+            ){
+                Text("/")
+            }
+        }
+
+        Row {
+            Text("Curl Command: curl http://10.0.2.2:8080/add -H \"Content-type:application/json\" -d \"{\\\"input1\\\":\\\"5\\\",\\\"input2\\\":\\\"2\\\"}\"")
+        }
+//        curl http://localhost:8080/add -H "Content-type:application/json" -d "{\"input1\":\"5\",\"input2\":\"2\"}"
+//        curl http://10.0.2.2:8080/add -H "Content-type:application/json" -d "{\"input1\":\"5\",\"input2\":\"2\"}"
+
+        Row(
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            // 1. Define the URL your QR code will point to
+            val serverUrl = "http://10.0.2.2:8080"
+
+            // 2. URL-encode it
+            val encodedUrl = URLEncoder.encode(serverUrl, "UTF-8")
+
+            // 3. Build the final API URL to get the QR image
+            val qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?data=$encodedUrl&size=150x150"
+
+            // 4. Use AsyncImage (from Coil) to load and display the image
+            AsyncImage(
+                model = qrCodeUrl,
+                contentDescription = "Server URL QR Code"
+            )
         }
     }
 }

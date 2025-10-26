@@ -59,7 +59,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.androidx.security.crypto)
-
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
     val ktor_version = "3.3.1"
     implementation("io.ktor:ktor-client-android:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
