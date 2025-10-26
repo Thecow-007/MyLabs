@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -292,12 +293,21 @@ fun LoginPage(modifier: Modifier = Modifier) {
 
             // 3. Build the final API URL to get the QR image
             val qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?data=$encodedUrl&size=150x150"
+            val testUrl = "https://i.imgur.com/DvpvklR.png"
 
             // 4. Use AsyncImage (from Coil) to load and display the image
-            AsyncImage(
-                model = qrCodeUrl,
-                contentDescription = "Server URL QR Code"
+            Image(
+                painter = painterResource(id = R.drawable.qr),
+                contentDescription = "QR code that sends you to http://10.0.2.2:8080"
             )
+//            Async Image didnt work :(
+//            AsyncImage(
+//                model = qrCodeUrl,
+//                contentDescription = "Server URL QR Code",
+//                modifier = Modifier.size(150.dp),
+//                placeholder = painterResource(android.R.drawable.ic_menu_gallery),
+//                error = painterResource(android.R.drawable.ic_dialog_alert)
+//            )
         }
     }
 }
