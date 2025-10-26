@@ -49,9 +49,18 @@ import androidx.security.crypto.MasterKeys
 import com.example.mylabs.ui.theme.MyLabsTheme
 //import androidx.activity.compose.LocalActivity //Unresolved reference 'LocalActivity'
 import io.ktor.client.*
+import io.ktor.client.call.body
 import io.ktor.client.engine.android.*
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 //Shell commands:
@@ -73,6 +82,7 @@ class MainActivity : ComponentActivity() {
         Log.w( "MainActivity", "In onCreate() - Loading Widgets" );
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             MyLabsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
@@ -110,22 +120,18 @@ class MainActivity : ComponentActivity() {
         super.onDestroy();
     }
 
+
+}
+
+@Composable
+fun LoginPage(modifier: Modifier = Modifier) {
+
     val client = HttpClient(Android){
         install(ContentNegotiation) {
             json()
         }
     }
 
-    val response: HttpResponse = client.post("https://localhost:8080/firstTest")
-    {
-        contentType(ContentType.Application.Json)
-        setBody(LoginRequest("Jet", "Brains"))
-    }
-    println(response.status)
-}
-
-@Composable
-fun LoginPage(modifier: Modifier = Modifier) {
     var username = remember { mutableStateOf("")}
     var password = remember { mutableStateOf("")}
 //    Had to use LocalContext to get it to work
@@ -168,20 +174,23 @@ fun LoginPage(modifier: Modifier = Modifier) {
         )
 
         Button(onClick = {
-            context.startActivity(  nextPage )
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val response: HttpResponse = client.post("http://10.0.2.2:8080/firstTest")
+                {
+                    contentType(ContentType.Application.Json)
+                    val login = LoginRequest("Jet", "Brains")
+                    setBody(login)
+                }
+                val body =  response.body<LoginRequest>()
+                Log.d("MyLogin", "Response Status: ${response.status}")
+                Log.d("MyLogin", "User logged in as: ${body.loginName}")
+            }
+
+
+//            context.startActivity(  nextPage )
         }){
             Text("Login")
-        }
-        Button(
-            onClick = {
-                val loginIntent = Intent(Intent.ACTION_VIEW).apply {
-                    //uses the cst8410 protocol + attributes
-                    data = ("cst8410://profile/?phone=1234&email=torunse@algonquincollege.com&address=1385+Woodroffe+Avenue").toUri()
-                }
-                context.startActivity(loginIntent)
-            }
-        ) {
-            Text("Prepopulate Page 2")
         }
     }
 }

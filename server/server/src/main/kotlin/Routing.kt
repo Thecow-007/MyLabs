@@ -1,5 +1,6 @@
 package ktor.cst8410
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -15,7 +16,12 @@ fun Application.configureRouting() {
 
         post("/firstTest") {
             val login = call.receive<LoginQuery>()
-            call.respondText("First Test!")
+            call.respond(HttpStatusCode.OK, login)
+        }
+
+        get("/secondTest") {
+//            val login = call.receive<LoginQuery>()
+            call.respondText("Second Test!")
         }
     }
 }

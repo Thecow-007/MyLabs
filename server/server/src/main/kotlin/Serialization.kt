@@ -6,6 +6,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
+//says 'never used'
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
         json()
