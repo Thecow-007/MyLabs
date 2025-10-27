@@ -8,14 +8,22 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,6 +79,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LoginPage(modifier: Modifier = Modifier) {
+    val items = rememberSaveable { mutableStateListOf<ShoppingItem>() }
+    var newItem = rememberSaveable { mutableStateOf("")}
+
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,6 +91,26 @@ fun LoginPage(modifier: Modifier = Modifier) {
     )
     {
         Text("week 7")
+        Row{
+            TextField(value = newItem.value, onValueChange = { newStr -> newItem.value = newStr })
+            Button(onClick = { items.add(ShoppingItem(newItem.value, false)); newItem.value="" }) {
+                Text("Add item")
+            }
+        }
+        LazyColumn {
+
+
+
+            items(items.size) { index ->
+                Row(modifier=Modifier.fillMaxWidth(), verticalAlignment  = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween)  {
+                    Text(text = "Item: ${items[index].name}")
+                    Checkbox(checked = items[index].sel,
+                        onCheckedChange = {newVal -> items[index] = items[index].copy(sel=newVal) } )
+                }
+
+            }
+        }
+
     }
 }
 
