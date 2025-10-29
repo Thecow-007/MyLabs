@@ -191,6 +191,29 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
         }
     }
 
+    //a layout for showing a single item
+    @Composable
+    fun ItemDetails(selectedItem: MutableState<Chat?>, modifier: Modifier = Modifier) {
+        Box(modifier = modifier.fillMaxSize()) {
+            Column {
+                Text(selectedItem.value!!.message)
+                Text("isSent: " + selectedItem.value!!.isSent.toString())
+                Button(
+                    onClick = {
+                        chats.remove(selectedItem.value)
+                        selectedItem.value = null
+                    }) {
+                    Text("Delete")
+                }
+            }
+            Button(
+                modifier = Modifier.align(Alignment.BottomStart),
+                onClick = { selectedItem.value = null }) {
+                Text("Hide")
+            }
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
@@ -204,13 +227,13 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
         else //there's an item selected
         {
             if(!isTablet){
-                ItemDetails(selectedItem, modifier = Modifier.fillMaxSize()) //This shows the details page on the whole page
+                ItemDetails(selectedItem, modifier = modifier.fillMaxSize()) //This shows the details page on the whole page
             }else{
                 Row(Modifier.fillMaxSize()) {
                     ChatList(modifier = Modifier.weight(0.4f)) // List on the left (40% width)
                     ItemDetails(
                         selectedItem = selectedItem,
-                        modifier = Modifier.weight(0.6f) // Details on the right (60% width)
+                        modifier = modifier.weight(0.6f) // Details on the right (60% width)
                     )
                 }
             }
@@ -222,21 +245,7 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
 
 
 
-//a layout for showing a single item
-@Composable
-fun ItemDetails(selectedItem: MutableState<Chat?>, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Column {
-            Text(selectedItem.value!!.message)
-            Text(selectedItem.value!!.isSent.toString())
-        }
-        Button(
-            modifier = Modifier.align(Alignment.BottomStart),
-            onClick = { selectedItem.value = null }) {
-            Text("Hide")
-        }
-    }
-}
+
 
 
 //@Preview(showBackground = true)
