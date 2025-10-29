@@ -104,7 +104,7 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
-        modifier = modifier.padding(24.dp, 0.dp, 24.dp, 200.dp).fillMaxHeight().fillMaxWidth()
+        modifier = modifier.padding(24.dp, 0.dp, 24.dp, 24.dp).fillMaxHeight().fillMaxWidth()
     )
     {
         Text("Shopping List")
