@@ -285,29 +285,29 @@ fun LoginPage(modifier: Modifier = Modifier) {
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            // 1. Define the URL your QR code will point to
+            // Define the URL the QR code will point to
             val serverUrl = "http://10.0.2.2:8080"
 
-            // 2. URL-encode it
+            // URL-encode it
             val encodedUrl = URLEncoder.encode(serverUrl, "UTF-8")
 
-            // 3. Build the final API URL to get the QR image
+            // Build the final API URL to get the QR image
             val qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?data=$encodedUrl&size=150x150"
             val testUrl = "https://i.imgur.com/DvpvklR.png"
 
-            // 4. Use AsyncImage (from Coil) to load and display the image
+            // Use AsyncImage (from Coil) to load and display the image
             Image(
                 painter = painterResource(id = R.drawable.qr),
                 contentDescription = "QR code that sends you to http://10.0.2.2:8080"
             )
 //            Async Image didnt work :(
-//            AsyncImage(
-//                model = qrCodeUrl,
-//                contentDescription = "Server URL QR Code",
-//                modifier = Modifier.size(150.dp),
-//                placeholder = painterResource(android.R.drawable.ic_menu_gallery),
-//                error = painterResource(android.R.drawable.ic_dialog_alert)
-//            )
+            AsyncImage(
+                model = qrCodeUrl,
+                contentDescription = "Server URL QR Code",
+                modifier = Modifier.size(150.dp),
+                placeholder = painterResource(android.R.drawable.ic_menu_gallery),
+                error = painterResource(android.R.drawable.ic_dialog_alert)
+            )
         }
     }
 }

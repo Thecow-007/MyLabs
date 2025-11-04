@@ -45,7 +45,7 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.OK, invalidMessage)
             }
             else{
-                val result = CalcResult("" + (input1.toInt() - input2.toInt()))
+                val result = CalcResult("${input1.toInt() - input2.toInt()}")
 
                 call.respond(HttpStatusCode.OK, result)
             }
