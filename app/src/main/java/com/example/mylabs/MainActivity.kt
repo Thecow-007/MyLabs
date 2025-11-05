@@ -140,6 +140,8 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
         }
     }
 
+
+
     @Composable
     fun ChatList(modifier: Modifier){
         Column(modifier = modifier.fillMaxWidth(if (isTablet) rowWidth else 1.0f)) {
