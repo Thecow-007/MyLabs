@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -112,7 +114,7 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
     @Composable
     fun ChatItem (index:Int){
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("MessageRow$index")
                 .clickable(onClick = { selectedItem.value = chats[index] }),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -121,17 +123,23 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
                 Image(
                     painter = painterResource( R.drawable.human ),
                     contentDescription="The sender",
-                    modifier= Modifier.width(100.dp).height(100.dp)
+                    modifier= Modifier.width(100.dp).height(100.dp).testTag("Avatar$index")
                 )
-                Text(text = chats[index].message)
+                Text(
+                    text = chats[index].message,
+                    modifier = Modifier.testTag("MessageText$index")
+                )
                 Text(text = chats[index].time.format(formatter), fontSize = 10.sp)
             }else{
                 Text(text = chats[index].time.format(formatter), fontSize = 10.sp)
-                Text(text = chats[index].message)
+                Text(
+                    text = chats[index].message,
+                    modifier = Modifier.testTag("MessageText$index")
+                )
                 Image(
                     painter = painterResource( R.drawable.boy ),
                     contentDescription="The receiver",
-                    modifier= Modifier.width(100.dp).height(100.dp)
+                    modifier= Modifier.width(100.dp).height(100.dp).testTag("Avatar$index")
                 )
 
             }
@@ -146,12 +154,12 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
     fun ChatList(modifier: Modifier){
         Column(modifier = modifier.fillMaxWidth(if (isTablet) rowWidth else 1.0f)) {
             LazyColumn (
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).testTag("messageList"),
                 reverseLayout = true
             ) {
 
                 //This generates a for-loop from 0 to items.size, and passes in index as the counter variable
-                items(chats.size) { index ->
+                itemsIndexed(chats) { index, chat ->
                     ChatItem(index)
                 }
             }
@@ -160,7 +168,9 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(onClick = {
+                Button(
+                    modifier = Modifier.testTag("sendButton"),
+                    onClick = {
                     chats.add(
                         Chat(
                             newChat.value,
@@ -175,9 +185,11 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
                 TextField(
                     value = newChat.value,
                     onValueChange = { newStr -> newChat.value = newStr },
-                    modifier = Modifier.weight(1f))
+                    modifier = Modifier.weight(1f).testTag("messageInput"))
 
-                Button(onClick = {
+                Button(
+                    modifier = Modifier.testTag("receiveButton"),
+                    onClick = {
                     chats.add(
                         Chat(
                             newChat.value,
