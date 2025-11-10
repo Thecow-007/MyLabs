@@ -19,15 +19,15 @@ jobs:
       with:
         distribution: temurin
         java-version: 17
-        cache: gradle,
+        cache: gradle
 
 
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew,
+      run: chmod +x gradlew
 
 
     - name: Build project
-      run: ./gradlew assembleDebug assembleAndroidTest --stacktrace,
+      run: ./gradlew assembleDebug assembleAndroidTest --stacktrace
 
 
     - name: Run instrumented tests on emulator
