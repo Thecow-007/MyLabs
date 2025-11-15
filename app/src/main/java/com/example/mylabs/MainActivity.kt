@@ -30,19 +30,26 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.room.Room
 import com.example.mylabs.ui.theme.MyLabsTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.text.format
@@ -57,13 +64,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val db = Room.databaseBuilder(LocalContext.current, MessageDatabase::class.java, "database-name").build()
+            val mDAO = db.getMyDAO()
             val widthSizeClass = calculateWindowSizeClass(this)
             MyLabsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.primary) { innerPadding ->
                     LoginPage(
                         modifier = Modifier.padding(innerPadding),
-                        size = widthSizeClass
+                        size = widthSizeClass,
+                        mDAO = mDAO
                     )
                 }
             }
@@ -99,8 +109,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
-    val chats = rememberSaveable { mutableStateListOf<Chat>() }
+fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass, mDAO: ChatDAO) {
+    val scope = rememberCoroutineScope()
+
+    val chats = remember { mutableStateListOf<Chat>() }
     val newChat = rememberSaveable { mutableStateOf("") }
 
     var selectedItem = remember { mutableStateOf<Chat?>(null) }
@@ -110,6 +122,16 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
     val rowWidth = if(isTablet) 1.0f else 0.3f
 
     val formatter = DateTimeFormatter.ofPattern("E h:mm a")
+
+    LaunchedEffect(key1 = true) { // The 'key1 = true' makes this run only once
+        scope.launch(Dispatchers.IO) { // Run on a background thread
+            val messagesFromDb = mDAO.getAllMessages()
+            // Switch back to the main thread to update the UI list
+            launch(Dispatchers.Main) {
+                chats.addAll(messagesFromDb)
+            }
+        }
+    }
 
     @Composable
     fun ChatItem (index:Int){
@@ -171,14 +193,13 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
                 Button(
                     modifier = Modifier.testTag("sendButton"),
                     onClick = {
-                    chats.add(
-                        Chat(
-                            newChat.value,
-                            true,
-                            time = LocalDateTime.now()
-                        )
-                    )
-                    newChat.value = ""
+                        val chat = Chat(message= newChat.value, isSent= true);
+                        chats.add(chat)
+                        newChat.value = ""
+
+                        scope.launch(Dispatchers.IO) {
+                            mDAO.insertMessage(chat)
+                        }
                 }) {
                     Text("Send")
                 }
@@ -190,20 +211,22 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
                 Button(
                     modifier = Modifier.testTag("receiveButton"),
                     onClick = {
-                    chats.add(
-                        Chat(
-                            newChat.value,
-                            false,
-                            time = LocalDateTime.now()
-                        )
-                    )
-                    newChat.value = ""
+                        val chat = Chat(message= newChat.value, isSent= false);
+                        chats.add(chat)
+                        newChat.value = ""
+
+                        scope.launch(Dispatchers.IO) {
+                            mDAO.insertMessage(chat)
+                        }
                 }) {
                     Text("Receive")
                 }
             }
         }
     }
+
+
+
 
     //a layout for showing a single item
     @Composable
@@ -214,9 +237,16 @@ fun LoginPage(modifier: Modifier = Modifier, size: WindowSizeClass) {
                 Text("isSent: " + selectedItem.value!!.isSent.toString())
                 Button(
                     onClick = {
-                        chats.remove(selectedItem.value)
+                    selectedItem.value?.let { itemToDelete ->
+
+                        chats.remove(itemToDelete)
                         selectedItem.value = null
-                    }) {
+
+                        scope.launch(Dispatchers.IO) {
+                            mDAO.deleteMessage(itemToDelete)
+                        }
+                    }
+            }) {
                     Text("Delete")
                 }
             }
